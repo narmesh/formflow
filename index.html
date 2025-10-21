@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="FormFlow is a generative art web app that transforms mathematical equations into flowing, organic vector forms. Explore computational beauty where mathematics meets nature — deterministic, infinite, and uniquely aesthetic."
+    />
+
+    <meta
+      name="keywords"
+      content="FormFlow, generative art, mathematical art, algorithmic design, organic shapes, computational creativity, parametric equations, noise functions, fractal geometry, HTML5 canvas art, math visualization, creative coding"
+    />
+    <!-- Open Graph / Facebook -->
+    <meta
+      property="og:title"
+      content="FormFlow – Where Mathematics Shapes Organic Art"
+    />
+    <meta
+      property="og:description"
+      content="FormFlow transforms math into flowing, organic vector art. Discover algorithmic beauty through equations, noise, and fractal geometry."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://narmeshverse.com/formflow" />
+    <meta property="og:image" content="https://narmeshverse.com/favicon.webp" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="FormFlow – Where Mathematics Shapes Organic Art"
+    />
+    <meta
+      name="twitter:description"
+      content="Experience FormFlow — a generative art tool turning equations into mesmerizing organic forms driven by pure math."
+    />
+    <meta
+      name="twitter:image"
+      content="https://narmeshverse.com/favicon.webp"
+    />
+    <meta name="twitter:creator" content="@narmesh_sah" />
+    <link rel="icon" type="image/webp" href="favicon.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>FormFlow - Organic Mathematical Forms</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Space Grotesk", sans-serif;
+        font-optical-sizing: auto;
+        background: #060606;
+        color: #e8e8e8;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+        position: relative;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(163, 230, 200, 0.02) 2px,
+            rgba(163, 230, 200, 0.02) 4px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 2px,
+            rgba(163, 230, 200, 0.02) 2px,
+            rgba(163, 230, 200, 0.02) 4px
+          );
+        pointer-events: none;
+        opacity: 0.3;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 10;
+      }
+
+      h1 {
+        font-size: clamp(2.5rem, 6vw, 5rem);
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        color: #a3e6c8;
+        text-transform: uppercase;
+        position: relative;
+      }
+
+      .tagline {
+        font-size: clamp(0.6rem, 1vw, 1.2rem);
+        color: #999;
+        font-weight: 400;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+      }
+
+      .canvas-container {
+        position: relative;
+        background: #0a0a0a;
+        padding: 2rem;
+        border: 1px solid rgba(163, 230, 200, 0.15);
+        box-shadow: 0 0 0 1px rgba(163, 230, 200, 0.05),
+          inset 0 0 40px rgba(0, 0, 0, 0.5);
+        margin-bottom: 1rem;
+        transition: border-color 0.3s ease;
+      }
+
+      .canvas-container:hover {
+        border-color: rgba(163, 230, 200, 0.3);
+      }
+
+      canvas {
+        display: block;
+        background: #000000;
+      }
+
+      .palette-selector {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0.5rem;
+        max-width: 400px;
+        margin: 0 auto 1rem;
+      }
+
+      .palette-option {
+        width: 1rem;
+        aspect-ratio: 1;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .palette-option::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        transform: translateX(-100%);
+        transition: transform 0.5s;
+      }
+
+      .palette-option:hover::before {
+        transform: translateX(100%);
+      }
+
+      .palette-option:hover {
+        transform: scale(1.05);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .palette-option.active {
+        border-radius: 50%;
+        border: 1px solid #a3e6c8;
+        box-shadow: 0 0 0 1px #a3e6c8, inset 0 0 20px rgba(163, 230, 200, 0.2);
+      }
+
+      .controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+
+      button {
+        padding: 0.875rem 2rem;
+        font-size: 0.75rem;
+        font-weight: 400;
+        border: 1px solid;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: "Courier New", monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        background: transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      button span {
+        position: relative;
+        z-index: 1;
+      }
+
+      .btn-primary {
+        color: #a3e6c8;
+        border-color: #a3e6c8;
+      }
+
+      .btn-primary:hover::before {
+        opacity: 0.1;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 0 0 1px #a3e6c8, inset 0 0 20px rgba(163, 230, 200, 0.1);
+      }
+
+      .btn-secondary {
+        color: #888;
+        border-color: #333;
+      }
+
+      .btn-secondary:hover {
+        color: #a3e6c8;
+        border-color: #555;
+      }
+
+      .btn-secondary:hover::before {
+        opacity: 0.05;
+      }
+
+      .seed-display {
+        text-align: center;
+        color: #a3e6c8;
+        font-size: 0.8rem;
+        font-family: "Courier New", monospace;
+        margin-top: 1rem;
+        letter-spacing: 0.1em;
+      }
+
+      footer {
+        text-align: center;
+        color: #999;
+        font-size: 1rem;
+        margin-top: auto;
+        padding-top: 3rem;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 2rem 1rem;
+        }
+
+        .canvas-container {
+          padding: 1rem;
+        }
+
+        canvas {
+          width: 100% !important;
+          height: auto !important;
+        }
+
+        .palette-selector {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .controls {
+          flex-direction: column;
+          width: 100%;
+          max-width: 300px;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>FormFlow</h1>
+      <p class="tagline">Mathematical Organic Forms</p>
+    </header>
+
+    <div class="canvas-container">
+      <canvas id="canvas" width="600" height="600"></canvas>
+      <div class="seed-display" id="seedDisplay"></div>
+    </div>
+
+    <div class="palette-selector" id="paletteSelector"></div>
+
+    <div class="controls">
+      <button class="btn-primary" id="newFormBtn">
+        <span>Generate</span>
+      </button>
+      <button class="btn-secondary" id="exportBtn">
+        <span>Export PNG</span>
+      </button>
+    </div>
+
+    <footer>
+      <p>Computational Beauty</p>
+    </footer>
+
+    <script>
+      // Enhanced Mulberry32 PRNG - High entropy, uniform distribution
+      class SeededRandom {
+        constructor(seed) {
+          this.seed = seed >>> 0;
+        }
+
+        random() {
+          let t = (this.seed += 0x6d2b79f5);
+          t = Math.imul(t ^ (t >>> 15), t | 1);
+          t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        }
+
+        range(min, max) {
+          return min + this.random() * (max - min);
+        }
+
+        int(min, max) {
+          return Math.floor(this.range(min, max + 1));
+        }
+
+        pick(array) {
+          return array[Math.floor(this.random() * array.length)];
+        }
+      }
+
+      // Enhanced Simplex Noise with seeded permutation and octaves
+      class SimplexNoise {
+        constructor(seed) {
+          this.grad3 = [
+            [1, 1, 0],
+            [-1, 1, 0],
+            [1, -1, 0],
+            [-1, -1, 0],
+            [1, 0, 1],
+            [-1, 0, 1],
+            [1, 0, -1],
+            [-1, 0, -1],
+            [0, 1, 1],
+            [0, -1, 1],
+            [0, 1, -1],
+            [0, -1, -1],
+          ];
+
+          // Generate permutation table from high-quality PRNG
+          const rng = new SeededRandom(seed);
+          this.p = [];
+          for (let i = 0; i < 256; i++) {
+            this.p[i] = Math.floor(rng.range(0, 256));
+          }
+
+          this.perm = [];
+          for (let i = 0; i < 512; i++) {
+            this.perm[i] = this.p[i & 255];
+          }
+        }
+
+        dot(g, x, y) {
+          return g[0] * x + g[1] * y;
+        }
+
+        noise(xin, yin) {
+          const F2 = 0.5 * (Math.sqrt(3.0) - 1.0);
+          const G2 = (3.0 - Math.sqrt(3.0)) / 6.0;
+
+          let n0 = 0,
+            n1 = 0,
+            n2 = 0;
+
+          const s = (xin + yin) * F2;
+          const i = Math.floor(xin + s);
+          const j = Math.floor(yin + s);
+          const t = (i + j) * G2;
+          const X0 = i - t;
+          const Y0 = j - t;
+          const x0 = xin - X0;
+          const y0 = yin - Y0;
+
+          let i1, j1;
+          if (x0 > y0) {
+            i1 = 1;
+            j1 = 0;
+          } else {
+            i1 = 0;
+            j1 = 1;
+          }
+
+          const x1 = x0 - i1 + G2;
+          const y1 = y0 - j1 + G2;
+          const x2 = x0 - 1.0 + 2.0 * G2;
+          const y2 = y0 - 1.0 + 2.0 * G2;
+
+          const ii = i & 255;
+          const jj = j & 255;
+
+          const gi0 = this.perm[ii + this.perm[jj]] % 12;
+          const gi1 = this.perm[ii + i1 + this.perm[jj + j1]] % 12;
+          const gi2 = this.perm[ii + 1 + this.perm[jj + 1]] % 12;
+
+          let t0 = 0.5 - x0 * x0 - y0 * y0;
+          if (t0 >= 0) {
+            t0 *= t0;
+            n0 = t0 * t0 * this.dot(this.grad3[gi0], x0, y0);
+          }
+
+          let t1 = 0.5 - x1 * x1 - y1 * y1;
+          if (t1 >= 0) {
+            t1 *= t1;
+            n1 = t1 * t1 * this.dot(this.grad3[gi1], x1, y1);
+          }
+
+          let t2 = 0.5 - x2 * x2 - y2 * y2;
+          if (t2 >= 0) {
+            t2 *= t2;
+            n2 = t2 * t2 * this.dot(this.grad3[gi2], x2, y2);
+          }
+
+          return 70.0 * (n0 + n1 + n2);
+        }
+
+        // Multi-octave fractal noise for natural detail
+        noiseOctaves(x, y, octaves = 4, falloff = 0.5) {
+          let value = 0,
+            amp = 1,
+            freq = 1,
+            maxValue = 0;
+          for (let i = 0; i < octaves; i++) {
+            value += this.noise(x * freq, y * freq) * amp;
+            maxValue += amp;
+            freq *= 2;
+            amp *= falloff;
+          }
+          return value / maxValue;
+        }
+      }
+
+      const palettes = [
+        {
+          name: "Cyan Wave",
+          colors: ["#a3e6c8", "#7fc9ad", "#5ba88f", "#3d8a73", "#90c9bb"],
+          bg: "linear-gradient(135deg, #a3e6c8, #3d8a73)",
+        },
+        {
+          name: "Coral Flame",
+          colors: ["#ff6b6b", "#ee5a6f", "#c44569", "#ff8787", "#e74c3c"],
+          bg: "linear-gradient(135deg, #ff6b6b, #c44569)",
+        },
+        {
+          name: "Violet Depth",
+          colors: ["#b794f6", "#9b72f5", "#7e5bef", "#6c5ce7", "#a29bfe"],
+          bg: "linear-gradient(135deg, #b794f6, #6c5ce7)",
+        },
+        {
+          name: "Solar Gold",
+          colors: ["#ffd93d", "#f9ca24", "#f39c12", "#ffb142", "#e67e22"],
+          bg: "linear-gradient(135deg, #ffd93d, #e67e22)",
+        },
+        {
+          name: "Ice Blue",
+          colors: ["#74b9ff", "#5f9eea", "#4a86d4", "#3498db", "#5faee3"],
+          bg: "linear-gradient(135deg, #74b9ff, #3498db)",
+        },
+        {
+          name: "Rose Pink",
+          colors: ["#fd79a8", "#e84393", "#d63289", "#ff7979", "#fa709a"],
+          bg: "linear-gradient(135deg, #fd79a8, #d63289)",
+        },
+      ];
+
+      let currentSeed = Date.now();
+      let currentPaletteIndex = 0;
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      const formTypes = [
+        "radial_organic",
+        "spiral_flow",
+        "cellular_blob",
+        "parametric_wave",
+        "fractal_branch",
+        "interference_pattern",
+        "geometric_morph",
+        "turbulent_field",
+      ];
+
+      const stylePresets = [
+        "smooth",
+        "chaotic",
+        "dense",
+        "minimal",
+        "textured",
+      ];
+
+      function blendPoints(p1, p2, factor) {
+        const minLen = Math.min(p1.length, p2.length);
+        const result = [];
+        for (let i = 0; i < minLen; i++) {
+          result.push({
+            x: p1[i].x * (1 - factor) + p2[i].x * factor,
+            y: p1[i].y * (1 - factor) + p2[i].y * factor,
+          });
+        }
+        return result;
+      }
+
+      function mirrorPoints(points, axis = "x") {
+        return points.map((p) => ({
+          x: axis === "x" ? centerX * 2 - p.x : p.x,
+          y: axis === "y" ? centerY * 2 - p.y : p.y,
+        }));
+      }
+
+      function rotatePoints(points, angle) {
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        return points.map((p) => {
+          const dx = p.x - centerX;
+          const dy = p.y - centerY;
+          return {
+            x: centerX + dx * cos - dy * sin,
+            y: centerY + dx * sin + dy * cos,
+          };
+        });
+      }
+
+      function generateRadialOrganic(rng, noise, style) {
+        const numPoints =
+          style === "dense" ? rng.int(200, 350) : rng.int(100, 200);
+        const baseRadius = rng.range(120, 200);
+        const symmetry = rng.pick([3, 4, 5, 6, 7, 8]);
+        const complexity = style === "minimal" ? rng.int(2, 3) : rng.int(3, 6);
+        const noiseOctaves = style === "textured" ? 5 : 3;
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const angle = (i / numPoints) * Math.PI * 2;
+          let r = baseRadius;
+
+          for (let j = 1; j <= complexity; j++) {
+            r += (Math.sin(angle * symmetry * j) * rng.range(15, 40)) / j;
+            r += (Math.cos(angle * j) * rng.range(10, 25)) / j;
+          }
+
+          const noiseVal = noise.noiseOctaves(
+            Math.cos(angle) * 2,
+            Math.sin(angle) * 2,
+            noiseOctaves
+          );
+          r += noiseVal * (style === "chaotic" ? 60 : 35);
+
+          // Clamp radius to safe bounds
+          r = Math.min(Math.max(r, 60), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * r,
+            y: centerY + Math.sin(angle) * r,
+          });
+        }
+        return points;
+      }
+
+      function generateSpiralFlow(rng, noise, style) {
+        const numPoints =
+          style === "dense" ? rng.int(250, 400) : rng.int(150, 250);
+        const spirals = rng.int(2, 5);
+        const expansion = rng.range(0.3, 0.8);
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const t = (i / numPoints) * Math.PI * 2;
+          const angle = t * spirals;
+          const r = 80 + t * expansion * 30;
+
+          const offset =
+            noise.noiseOctaves(t * 0.5, angle * 0.3, 4) *
+            (style === "chaotic" ? 50 : 35);
+          const finalR = r + offset + Math.sin(t * 6) * 20;
+
+          // Clamp to safe bounds
+          const clampedR = Math.min(Math.max(finalR, 60), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * clampedR,
+            y: centerY + Math.sin(angle) * clampedR,
+          });
+        }
+        return points;
+      }
+
+      function generateCellularBlob(rng, noise, style) {
+        const numPoints = rng.int(80, 150);
+        const cells = rng.int(3, 7);
+        const baseRadius = rng.range(100, 180);
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const angle = (i / numPoints) * Math.PI * 2;
+          let r = baseRadius;
+
+          for (let c = 0; c < cells; c++) {
+            const cellAngle = (c / cells) * Math.PI * 2;
+            const influence = Math.cos(angle - cellAngle);
+            if (influence > 0) {
+              r += influence * rng.range(30, 60);
+            }
+          }
+
+          r +=
+            noise.noiseOctaves(Math.cos(angle) * 3, Math.sin(angle) * 3, 4) *
+            30;
+
+          // Clamp to safe bounds
+          r = Math.min(Math.max(r, 70), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * r,
+            y: centerY + Math.sin(angle) * r,
+          });
+        }
+        return points;
+      }
+
+      function generateParametricWave(rng, noise, style) {
+        const numPoints =
+          style === "dense" ? rng.int(300, 500) : rng.int(200, 350);
+        const a = rng.int(3, 9);
+        const b = rng.int(2, 7);
+        const scale = rng.range(50, 100);
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const t = (i / numPoints) * Math.PI * 2;
+
+          const r = scale * (Math.sin(a * t) + Math.cos(b * t));
+          const noiseR = noise.noiseOctaves(t * 2, r * 0.1, 3) * 35;
+
+          const finalR = Math.abs(r) + noiseR + 90;
+
+          // Clamp to safe bounds
+          const clampedR = Math.min(Math.max(finalR, 70), 280);
+
+          points.push({
+            x: centerX + Math.cos(t) * clampedR,
+            y: centerY + Math.sin(t) * clampedR,
+          });
+        }
+        return points;
+      }
+
+      function generateFractalBranch(rng, noise, style) {
+        const numPoints = rng.int(120, 200);
+        const branches = rng.int(4, 8);
+        const baseRadius = rng.range(100, 160);
+        const levels = style === "minimal" ? 2 : 3;
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const angle = (i / numPoints) * Math.PI * 2;
+          let r = baseRadius;
+
+          for (let level = 1; level <= levels; level++) {
+            const freq = branches * Math.pow(2, level - 1);
+            const amp = 40 / level;
+            r += Math.sin(angle * freq) * amp;
+          }
+
+          r += noise.noiseOctaves(angle * 1.5, r * 0.05, 4) * 38;
+
+          // Clamp to safe bounds
+          r = Math.min(Math.max(r, 60), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * r,
+            y: centerY + Math.sin(angle) * r,
+          });
+        }
+        return points;
+      }
+
+      function generateInterferencePattern(rng, noise, style) {
+        const numPoints = rng.int(180, 300);
+        const waves = rng.int(3, 6);
+        const baseRadius = rng.range(120, 180);
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const angle = (i / numPoints) * Math.PI * 2;
+          let r = baseRadius;
+
+          for (let w = 1; w <= waves; w++) {
+            r += Math.sin(angle * w * 2) * (30 / w);
+            r += Math.cos(angle * (w + 1)) * (20 / w);
+          }
+
+          r +=
+            noise.noiseOctaves(
+              Math.cos(angle) * 2.5,
+              Math.sin(angle) * 2.5,
+              4
+            ) * 35;
+
+          // Clamp to safe bounds
+          r = Math.min(Math.max(r, 70), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * r,
+            y: centerY + Math.sin(angle) * r,
+          });
+        }
+        return points;
+      }
+
+      function generateGeometricMorph(rng, noise, style) {
+        const sides = rng.pick([3, 4, 5, 6, 7, 8, 9]);
+        const numPoints = sides * rng.int(20, 40);
+        const baseRadius = rng.range(130, 190);
+        const morph = rng.range(0.3, 0.7);
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const angle = (i / numPoints) * Math.PI * 2;
+          const polygonAngle =
+            Math.floor(angle / ((Math.PI * 2) / sides)) *
+            ((Math.PI * 2) / sides);
+
+          const circleR = baseRadius;
+          const angleOffset = angle - polygonAngle;
+          const cosVal = Math.cos(angleOffset);
+
+          // Prevent division by values too close to zero
+          const polygonR =
+            Math.abs(cosVal) > 0.1 ? baseRadius / cosVal : baseRadius * 3;
+
+          // Clamp polygon radius to reasonable bounds
+          const clampedPolygonR = Math.min(
+            Math.max(polygonR, baseRadius * 0.5),
+            baseRadius * 2.5
+          );
+          let r = circleR * (1 - morph) + clampedPolygonR * morph;
+
+          r += noise.noiseOctaves(angle * 2, r * 0.1, 4) * 40;
+          r += Math.sin(angle * sides * 2) * 20;
+
+          // Final safety clamp
+          r = Math.min(Math.max(r, 50), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * r,
+            y: centerY + Math.sin(angle) * r,
+          });
+        }
+        return points;
+      }
+
+      function generateTurbulentField(rng, noise, style) {
+        const numPoints = rng.int(150, 280);
+        const baseRadius = rng.range(110, 170);
+        const turbulence =
+          style === "chaotic" ? rng.range(60, 100) : rng.range(40, 80);
+
+        const points = [];
+        for (let i = 0; i < numPoints; i++) {
+          const angle = (i / numPoints) * Math.PI * 2;
+          let r = baseRadius;
+
+          const noiseVal = noise.noiseOctaves(
+            Math.cos(angle) * 2,
+            Math.sin(angle) * 2,
+            5,
+            0.6
+          );
+          r += noiseVal * turbulence;
+          r += Math.sin(angle * 7) * 25;
+
+          // Clamp to safe bounds
+          r = Math.min(Math.max(r, 60), 280);
+
+          points.push({
+            x: centerX + Math.cos(angle) * r,
+            y: centerY + Math.sin(angle) * r,
+          });
+        }
+        return points;
+      }
+
+      function initPaletteSelector() {
+        const selector = document.getElementById("paletteSelector");
+        palettes.forEach((palette, index) => {
+          const option = document.createElement("div");
+          option.className = "palette-option";
+          option.style.background = palette.bg;
+          option.title = palette.name;
+          if (index === 0) option.classList.add("active");
+
+          option.addEventListener("click", () => {
+            document.querySelectorAll(".palette-option").forEach((el) => {
+              el.classList.remove("active");
+            });
+            option.classList.add("active");
+            currentPaletteIndex = index;
+            generateForm(currentSeed);
+          });
+
+          selector.appendChild(option);
+        });
+      }
+
+      function generateForm(seed) {
+        currentSeed = seed;
+        document.getElementById("seedDisplay").textContent = `SEED: ${seed}`;
+
+        const rng = new SeededRandom(seed);
+        const noise = new SimplexNoise(seed);
+
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Select style preset
+        const style = rng.pick(stylePresets);
+
+        // Select form type(s)
+        const formType = rng.pick(formTypes);
+        let points;
+
+        // Hybrid blending (30% chance)
+        if (rng.random() > 0.7) {
+          const formType2 = rng.pick(formTypes);
+          const p1 = generateFormPoints(formType, rng, noise, style);
+          const p2 = generateFormPoints(formType2, rng, noise, style);
+          const blendFactor = rng.range(0.3, 0.7);
+          points = blendPoints(p1, p2, blendFactor);
+        } else {
+          points = generateFormPoints(formType, rng, noise, style);
+        }
+
+        // Apply transformations
+        if (rng.random() > 0.7) {
+          points = rotatePoints(points, rng.range(0, Math.PI / 6));
+        }
+
+        const palette = palettes[currentPaletteIndex];
+
+        // Noise-based color mapping
+        const useNoiseColor = rng.random() > 0.6;
+
+        if (useNoiseColor) {
+          drawNoiseColoredForm(points, palette, noise, rng, style);
+        } else {
+          drawGradientForm(points, palette, rng, style);
+        }
+
+        // Occasional inner form
+        if (rng.random() > 0.5 && formType !== "spiral_flow") {
+          drawInnerForm(points, palette, rng);
+        }
+      }
+
+      function generateFormPoints(formType, rng, noise, style) {
+        switch (formType) {
+          case "radial_organic":
+            return generateRadialOrganic(rng, noise, style);
+          case "spiral_flow":
+            return generateSpiralFlow(rng, noise, style);
+          case "cellular_blob":
+            return generateCellularBlob(rng, noise, style);
+          case "parametric_wave":
+            return generateParametricWave(rng, noise, style);
+          case "fractal_branch":
+            return generateFractalBranch(rng, noise, style);
+          case "interference_pattern":
+            return generateInterferencePattern(rng, noise, style);
+          case "geometric_morph":
+            return generateGeometricMorph(rng, noise, style);
+          case "turbulent_field":
+            return generateTurbulentField(rng, noise, style);
+          default:
+            return generateRadialOrganic(rng, noise, style);
+        }
+      }
+
+      function drawGradientForm(points, palette, rng, style) {
+        const gradient = ctx.createRadialGradient(
+          centerX,
+          centerY,
+          0,
+          centerX,
+          centerY,
+          250
+        );
+
+        const colors = palette.colors;
+        for (let i = 0; i < colors.length; i++) {
+          const alpha = Math.floor(rng.range(180, 230)).toString(16);
+          gradient.addColorStop(i / (colors.length - 1), colors[i] + alpha);
+        }
+
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle =
+          palette.colors[0] + (style === "minimal" ? "20" : "40");
+        ctx.lineWidth = style === "minimal" ? 0.5 : style === "dense" ? 2 : 1;
+
+        drawSmoothPath(points);
+      }
+
+      function drawNoiseColoredForm(points, palette, noise, rng, style) {
+        const colors = palette.colors;
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length; i++) {
+          const curr = points[i];
+          const next = points[(i + 1) % points.length];
+
+          // Map noise to color
+          const noiseVal = noise.noise(curr.x * 0.01, curr.y * 0.01);
+          const colorIndex = Math.floor(
+            ((noiseVal + 1) / 2) * (colors.length - 1)
+          );
+          const alpha = Math.floor(rng.range(200, 240)).toString(16);
+
+          ctx.strokeStyle =
+            colors[Math.max(0, Math.min(colorIndex, colors.length - 1))] +
+            alpha;
+          ctx.lineWidth = style === "textured" ? 3 : 2;
+
+          const xc = (curr.x + next.x) / 2;
+          const yc = (curr.y + next.y) / 2;
+          ctx.quadraticCurveTo(curr.x, curr.y, xc, yc);
+          ctx.stroke();
+        }
+
+        ctx.closePath();
+
+        // Fill with subtle gradient
+        const gradient = ctx.createRadialGradient(
+          centerX,
+          centerY,
+          0,
+          centerX,
+          centerY,
+          250
+        );
+        gradient.addColorStop(0, colors[0] + "40");
+        gradient.addColorStop(1, colors[colors.length - 1] + "20");
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+
+      function drawSmoothPath(points) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length; i++) {
+          const curr = points[i];
+          const next = points[(i + 1) % points.length];
+          const xc = (curr.x + next.x) / 2;
+          const yc = (curr.y + next.y) / 2;
+          ctx.quadraticCurveTo(curr.x, curr.y, xc, yc);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      function drawInnerForm(points, palette, rng) {
+        ctx.globalAlpha = rng.range(0.15, 0.35);
+        const scale = rng.range(0.4, 0.6);
+        const colors = palette.colors;
+
+        ctx.beginPath();
+        ctx.moveTo(
+          centerX + (points[0].x - centerX) * scale,
+          centerY + (points[0].y - centerY) * scale
+        );
+
+        for (let i = 0; i < points.length; i += 2) {
+          const curr = points[i];
+          const x = centerX + (curr.x - centerX) * scale;
+          const y = centerY + (curr.y - centerY) * scale;
+          ctx.lineTo(x, y);
+        }
+
+        ctx.closePath();
+        ctx.fillStyle = colors[colors.length - 1] + "aa";
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      function exportPNG() {
+        const link = document.createElement("a");
+        link.download = `formflow-${currentSeed}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
+
+      document.getElementById("newFormBtn").addEventListener("click", () => {
+        const combinedSeed =
+          (Date.now() * 2654435761 + Math.random() * 1e9) >>> 0;
+        generateForm(combinedSeed);
+      });
+
+      document.getElementById("exportBtn").addEventListener("click", exportPNG);
+
+      initPaletteSelector();
+      generateForm(currentSeed);
+    </script>
+  </body>
+</html>
